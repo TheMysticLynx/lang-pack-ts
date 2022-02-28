@@ -33,8 +33,10 @@ const valueSlice = createSlice({
             state.defaultValues = action.payload;
         },
         setValue: (state, action: PayloadAction<LangValue>) => {
-            console.log(action);
             state.values[action.payload.key] = action.payload.value;
+        },
+        setValues: (state, action: PayloadAction<ValueDictionary>) => {
+            state.values = action.payload;
         },
         setFilter: (state, action: PayloadAction<[string, boolean]>) => {
             state.filters[action.payload[0]] = action.payload[1];
@@ -47,7 +49,7 @@ const valueSlice = createSlice({
     }
 })
 
-export const { setDefaultValues, setValue, setFilter, initFilters } = valueSlice.actions;
+export const { setDefaultValues, setValue, setValues, setFilter, initFilters } = valueSlice.actions;
 
 export const selectValue = (state: RootState) => state.value
 

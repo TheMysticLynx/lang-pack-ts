@@ -1,7 +1,7 @@
 import { connect, ConnectedProps } from "react-redux";
 import React from "react";
 import { RootState } from "../Redux/store";
-import { setValue } from "../Redux/slices/valueSlice";
+import { setValues } from "../Redux/slices/valueSlice";
 import './Regex.sass';
 
 const connector = connect(
@@ -10,7 +10,7 @@ const connector = connect(
         dValues: state.value.defaultValues,
         values: state.value.values,
     }),
-    { setValue }
+    { setValues }
 );
 
 type Props = ConnectedProps<typeof connector> & {
@@ -21,7 +21,8 @@ type State = {
     regex: string,
     replaceWith: string,
     error?: string,
-    success?: string
+    success?: string,
+    loading: boolean
 }
 
 class Regex extends React.Component<Props, State> {
@@ -31,44 +32,50 @@ class Regex extends React.Component<Props, State> {
             regex: "",
             replaceWith: "",
             error: "",
-            success: ""
+            success: "",
+            loading: false
         };
     }
 
     onClick = () => {
         try {
-            let regex = new RegExp(this.state.regex);
-
+            let regex = new RegExp(this.state.regex, 'g');
             let keys = Object.keys(this.props.dValues);
 
             let vCount = 0;
 
+            this.setState({loading: true})
+
+            let newValues:  { [key: string]: string } = {}
+          
             keys.forEach(key => {
-                let value = this.props.dValues[key];
+                let value = this.props.values[key] ?? this.props.dValues[key];
                 if (value) {
 
-                    let newValue = value.replace(regex, this.state.replaceWith);
-                    if(newValue !== value){
+                    let newValue = value.replaceAll(regex, this.state.replaceWith);
+                    if(newValue == this.props.dValues[key]) {
+                        delete newValues[key]
+                    } else if(newValue !== value){
                         vCount++;
-                        console.log(`${key}: ${value} => ${newValue}`);
-                        this.props.setValue({key: key, value: newValue});
-
-                        this.setState({success: `${vCount} values replaced`});
+                        newValues[key] = newValue
                     }
                 }
             });
 
+            this.props.setValues(newValues)
+          
+            this.setState({loading: false})
+
             if(vCount === 0){
                 this.setState({error: "No values were replaced"});
+              setTimeout(() => {this.setState({error: ``});}, 5000)
             } else {
                 this.setState({success: `${vCount} values replaced`});
+              setTimeout(() => {this.setState({success: ``});}, 5000)
             }
-
-
-
-
         } catch (e: any) {
             this.setState({ error: e.message });
+            setTimeout(() => {this.setState({error: ``});}, 5000)
         }
     }
 

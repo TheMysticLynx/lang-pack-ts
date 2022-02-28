@@ -1,50 +1,53 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { stat } from "fs";
 import { Value } from "sass";
-import { RootState } from "../store";
+import { RootState, store } from "../store";
 import langFile from "../../assets/en_US.lang";
 
-interface LangValue {
+export interface LangValue {
     key: string,
     value: string
 }
 
-interface ValueDictionary {
-    [key: string]: LangValue
-}
+interface ValueDictionary { [key: string]: string }
 
 interface ValueState {
-    defaultValues: LangValue[],
+    defaultValues: ValueDictionary,
     values: ValueDictionary,
-    filters: Set<string>
+    filters: {
+        [key: string]: boolean
+    }
 }
 
 const initialState: ValueState = {
-    defaultValues: [],
+    defaultValues: {},
     values: {},
-    filters: new Set<string>()
+    filters: {}
 };
 
 const valueSlice = createSlice({
     name: "value",
     initialState,
     reducers: {
-        setDefaultValues: (state, action: PayloadAction<LangValue[]>) => {
+        setDefaultValues: (state, action: PayloadAction<ValueDictionary>) => {
             state.defaultValues = action.payload;
         },
         setValue: (state, action: PayloadAction<LangValue>) => {
-            state.values[action.payload.key] = action.payload;
+            console.log(action);
+            state.values[action.payload.key] = action.payload.value;
         },
-        addFilter: (state, action: PayloadAction<string>) => {
-            state.filters.add(action.payload);
+        setFilter: (state, action: PayloadAction<[string, boolean]>) => {
+            state.filters[action.payload[0]] = action.payload[1];
         },
-        removeFilter: (state, action: PayloadAction<string>) => {
-            state.filters.delete(action.payload);
+        initFilters: (state, action: PayloadAction<string[]>) => {
+            action.payload.forEach((s) => {
+                state.filters[s] = false
+            })
         }
     }
 })
 
-export const { setDefaultValues } = valueSlice.actions;
+export const { setDefaultValues, setValue, setFilter, initFilters } = valueSlice.actions;
 
 export const selectValue = (state: RootState) => state.value
 

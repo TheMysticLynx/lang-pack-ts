@@ -1,0 +1,48 @@
+$transition: all .3s ease-in-out
+
+.Dropdown
+    user-select: none
+    cursor: pointer
+    position: relative
+    >p, h1
+        display: inline-block
+        position: relative
+        width: fit-content
+        &::after
+            content: ''
+            transition: $transition
+            width: 0px
+            position: absolute
+            top: calc(100% + .1em)
+            left: 50%
+            background-color: #FFF
+            height: .1em
+            transform: translateX(-50%)
+            width: 0%
+    >.content
+        display: none
+        left: 1em
+        height: 0px
+        opacity: 0
+        overflow: hidden
+        position: relative
+        top: .5em
+    .down
+        fill: #fff
+        stroke: #fff
+        width: 1em
+        height: 1em
+        vertical-align: middle
+        transition: $transition
+        transform: rotate(90deg)
+    
+.Dropdown.open
+    >p, >h1
+        &::after
+            width: 100%
+    .down
+        transform: none
+    .content
+        display: block
+        height: auto
+        opacity: 100%

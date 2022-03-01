@@ -1,7 +1,7 @@
 import { connect, ConnectedProps } from "react-redux";
 import React from "react";
 import { RootState } from "../Redux/store";
-import { setValues } from "../Redux/slices/valueSlice";
+import { LangValue, setValues } from "../Redux/slices/valueSlice";
 import './Regex.sass';
 
 const connector = connect(
@@ -20,6 +20,7 @@ type Props = ConnectedProps<typeof connector> & {
 type State = {
     regex: string,
     replaceWith: string,
+    flags: string,
     error?: string,
     success?: string,
     loading: boolean
@@ -31,6 +32,7 @@ class Regex extends React.Component<Props, State> {
         this.state = {
             regex: "",
             replaceWith: "",
+            flags: "g",
             error: "",
             success: "",
             loading: false
@@ -38,56 +40,87 @@ class Regex extends React.Component<Props, State> {
     }
 
     onClick = () => {
+        if(this.state.loading) return;
+        this.setState({ loading: true });
         try {
-            let regex = new RegExp(this.state.regex, 'g');
-            let keys = Object.keys(this.props.dValues);
+            let regex = new RegExp(this.state.regex, this.state.flags);
+            let newValues: {[key: string]: string} = {};
 
-            let vCount = 0;
-
-            this.setState({loading: true})
-
-            let newValues:  { [key: string]: string } = {}
-          
-            keys.forEach(key => {
-                let value = this.props.values[key] ?? this.props.dValues[key];
-                if (value) {
-
-                    let newValue = value.replaceAll(regex, this.state.replaceWith);
-                    if(newValue == this.props.dValues[key]) {
-                        delete newValues[key]
-                    } else if(newValue !== value){
-                        vCount++;
-                        newValues[key] = newValue
-                    }
-                }
-            });
-
-            this.props.setValues(newValues)
-          
-            this.setState({loading: false})
-
-            if(vCount === 0){
-                this.setState({error: "No values were replaced"});
-              setTimeout(() => {this.setState({error: ``});}, 5000)
-            } else {
-                this.setState({success: `${vCount} values replaced`});
-              setTimeout(() => {this.setState({success: ``});}, 5000)
+            for (let k in this.props.values) {
+                newValues[k] = this.props.values[k];
             }
+
+            let changedCount = 0;
+            
+            let filtered = false;
+            for (let k in this.props.filters) {
+                if (this.props.filters[k]) {
+                    filtered = true;
+                }
+            }
+
+            for (let key in this.props.dValues) {
+                let toBeReplace  =  this.props.values[key];
+
+                if (filtered && !this.props.filters[key.split('.')[0]]) {
+                    console.log(`Skipping ${key}`);
+                    continue;
+                } else {
+                    console.log("test")
+                }
+
+                if(toBeReplace == undefined || toBeReplace == '') {
+                    toBeReplace = this.props.dValues[key];
+                }
+                
+                let newValue = toBeReplace.replaceAll(regex, this.state.replaceWith);
+
+                if(newValue != toBeReplace) {
+                    changedCount++;
+                    newValues[key] = newValue;
+                }
+            }
+
+            if(changedCount > 0) {
+                this.props.setValues(newValues);
+                this.setState({ success: `${changedCount} values replaced` });
+                setTimeout(() => {
+                    this.setState({ success: "" });
+                }, 2000);
+            } else {
+                this.setState({ error: "No changes made" });
+                setTimeout(() => {
+                    this.setState({ error: "" });
+                } , 2000);
+            }
+
         } catch (e: any) {
             this.setState({ error: e.message });
             setTimeout(() => {this.setState({error: ``});}, 5000)
         }
+        this.setState({ loading: false });
     }
 
     render() {
         return (<div className="Regex">
             <h1>Regex Replace</h1><br />
 
-            <p className="indent">Enter a regex and a replacement string to replace all occurrences of the regex in the values</p><br />
-            <p className="indent">Regular Expression</p>
-
-            <input type="text" placeholder="([A-Z])\w+" value={this.state.regex}
-                onChange={(e) => { this.setState({ regex: e.target.value }) }} /><br /><br />
+            <p className="indent">Enter a regex and a replacement string to replace all occurrences of the regex in the values.
+            Select atleast one filter from the left-side bar to apply filters.
+            </p><br />
+            <div className="flex">
+                <div>
+                    <p className="indent">Regular Expression</p>
+                    <input type="text" placeholder="([A-Z])\w+" value={this.state.regex}
+                        onChange={(e) => { this.setState({ regex: e.target.value }) }} /> 
+                </div>
+                <div>
+                    <p className="indent">Flags</p>
+                    <input type="text" placeholder="g (flags)" className="halfsize" value={this.state.flags} 
+                        onChange={(e) => { this.setState({ flags: e.target.value }) }}/>
+                    <br /><br />
+                </div>
+            </div>  
 
             <p className="indent">Replace with</p>
 
@@ -97,7 +130,7 @@ class Regex extends React.Component<Props, State> {
             <p className="error">{this.state.error}</p>
             <p className="success">{this.state.success}</p><br />
 
-            <button onClick={this.onClick}>Replace</button>
+            <button onClick={this.onClick} className={this.state.loading ? "loading" : ''}>Replace</button>
         </div>)
     }
 }

@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
+import optionSlice from "./slices/optionSlice";
 import valueSlice from "./slices/valueSlice";
 
 export const store = configureStore({
     reducer: {
-        value: valueSlice
+        value: valueSlice,
+        option: optionSlice
     }
 })
 

@@ -1,4 +1,4 @@
-
+@use '../SASS/scheme.sass'
 
 .Regex
     padding: 3em
@@ -16,9 +16,31 @@
     button
         font-size: 1em
         margin-left: 3em
-        color: #FFF
-        background: none
-        border: 2px solid #fff
-        padding: .5em
-        border-radius: .5em
-        cursor: pointer
+    .loading
+        position: relative
+        color: rgba(0, 0, 0, 0)
+        border: none
+    .loading::after
+        content: ''
+        animation: spinner .75s ease-in-out infinite
+        position: absolute
+        width: 1.5em
+        height: 1.5em
+        left: 50%
+        top: 50%
+        transform: translate(-50%, -50%)
+        border-radius: 50%
+        border: solid 5px rgba(255, 255, 255, 1)
+        border-bottom-color: scheme.$main
+
+.flex
+    display: flex
+
+.halfsize
+    width: 5em
+
+@keyframes spinner
+    0%
+        transform: translate(-50%, -50%) rotate(0deg)
+    100%
+        transform: translate(-50%, -50%) rotate(360deg)

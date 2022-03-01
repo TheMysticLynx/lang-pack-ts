@@ -7,25 +7,16 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './Redux/store';
 import Home from './Routes/Home';
-import langFile from './assets/en_US.lang'
+import langFile from './assets/lang/1.8/en_US.lang';
 import { initFilters, LangValue, setDefaultValues } from './Redux/slices/valueSlice';
 import Regex from './Routes/Regex';
+import { importString } from './Redux/subscribers/versionChange';
+
+let filters: string[] = [];
 
 fetch(langFile).then(res => res.text()).then(
   (res) => {
-    let langDictionary: { [key: string]: string } = {};
-    let filters = new Set<string>()
-
-    res.split('\n').forEach(line => {
-      const [key, value] = line.split('=');
-      if(key && value) {
-        filters.add(key.split(".")[0]);
-        langDictionary[key] = value;
-      }
-    });
-
-    store.dispatch(setDefaultValues(langDictionary));
-    store.dispatch(initFilters(Array.from(filters)));
+    importString(res);
   }
 )
 
@@ -37,13 +28,13 @@ ReactDOM.render(
         <Routes>
           <Route path='/' element={<App />}>
             <Route path='regex' element={<Regex />} />
-            <Route index element={ <Home /> } />
+            <Route index element={<Home />} />
           </Route>
         </Routes>
       </React.StrictMode>
     </Provider>
   </BrowserRouter>
-,
+  ,
   document.getElementById('root')
 );
 

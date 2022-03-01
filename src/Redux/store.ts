@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import optionSlice from "./slices/optionSlice";
-import valueSlice from "./slices/valueSlice";
+import valueSlice, { initFilters, setDefaultValues } from "./slices/valueSlice";
 
 export const store = configureStore({
     reducer: {

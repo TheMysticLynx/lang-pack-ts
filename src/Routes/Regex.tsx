@@ -60,7 +60,7 @@ class Regex extends React.Component<Props, State> {
             }
 
             for (let key in this.props.dValues) {
-                let toBeReplace  =  this.props.values[key];
+                let toBeReplaced  =  this.props.values[key];
 
                 if (filtered && !this.props.filters[key.split('.')[0]]) {
                     console.log(`Skipping ${key}`);
@@ -69,13 +69,13 @@ class Regex extends React.Component<Props, State> {
                     console.log("test")
                 }
 
-                if(toBeReplace == undefined || toBeReplace == '') {
-                    toBeReplace = this.props.dValues[key];
+                if(toBeReplaced == undefined || toBeReplaced == '') {
+                    toBeReplaced = this.props.dValues[key];
                 }
                 
-                let newValue = toBeReplace.replaceAll(regex, this.state.replaceWith);
+                let newValue = toBeReplaced.replaceAll(regex, this.state.replaceWith);
 
-                if(newValue != toBeReplace) {
+                if(newValue != toBeReplaced) {
                     changedCount++;
                     newValues[key] = newValue;
                 }

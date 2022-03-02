@@ -22,7 +22,7 @@ fetch(langFile).then(res => res.text()).then(
 
 
 ReactDOM.render(
-  <BrowserRouter>
+  <BrowserRouter basename={process.env.PUBLIC_URL}>
     <Provider store={store}>
       <React.StrictMode>
         <Routes>

@@ -70,7 +70,7 @@ class Sidebar extends React.Component<ConnectedProps<typeof connector>> {
                     }
                 }
 
-                folder?.file("en_us.lang", JSON.stringify(obj));
+                folder?.file("en_us.json", JSON.stringify(obj));
 
                 zip.generateAsync({ type: "blob" }).then(content => {
                     let a = document.createElement("a");
